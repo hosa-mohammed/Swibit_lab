@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from app.core.database import Base, engine
 from app.core.logging import logger
 from app.api.routes import health, auth, tasks, audit  
-
+from fastapi.middleware.cors import CORSMiddleware
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
