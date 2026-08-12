@@ -19,4 +19,9 @@ def set_cached_tasks(user_id: int, tasks):
     tasks_data = [{"id": t.id, "title": t.title, "description": t.description, 
                    "priority": t.priority, "is_complete": t.is_complete, "owner_id": t.owner_id} 
                   for t in tasks]
-    redis_client.setex(key, 300, json.dumps(tasks_data)) 
+    redis_client.setex(key, 300, json.dumps(tasks_data))
+
+
+def delete_cached_tasks(user_id: int): 
+    key = f"tasks:user:{user_id}"
+    redis_client.delete(key)
