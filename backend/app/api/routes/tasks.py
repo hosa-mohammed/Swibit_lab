@@ -47,6 +47,7 @@ def create_task(task: TaskCreate, db: Session = Depends(get_db), current_user: U
 @router.patch("/{task_id}", response_model=TaskResponse)
 def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db_task = db.query(Task).filter(Task.id == task_id, Task.owner_id == current_user.id).first()
+    
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
     

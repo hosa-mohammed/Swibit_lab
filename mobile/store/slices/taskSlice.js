@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../lib/api';
 
-// Fetch tasks
 export const fetchTasks = createAsyncThunk(
   'tasks/fetch',
-  async (_, { getState, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const { auth } = getState();
+      const token = await AsyncStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/tasks/`, {
-        headers: { 'Authorization': `Bearer ${auth.token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('Failed to fetch');
       return await response.json();

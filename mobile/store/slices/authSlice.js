@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../lib/api';
 
-// Async thunk for login
 export const loginUser = createAsyncThunk(
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {
@@ -13,10 +12,13 @@ export const loginUser = createAsyncThunk(
         body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
       });
 
-      if (!response.ok) throw new Error('Login failed');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Login failed');
+      }
 
       const data = await response.json();
-      await SecureStore.setItemAsync('token', data.access_token);
+      await AsyncStorage.setItem('token', data.access_token);
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -34,7 +36,7 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.token = null;
-      SecureStore.deleteItemAsync('token');
+      AsyncStorage.removeItem('token');
     },
     setToken: (state, action) => {
       state.token = action.payload;

@@ -216,3 +216,23 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+# Mobile / Expo
+mobile/node_modules/
+mobile/.expo/
+mobile/.expo-shared/
+mobile/dist/
+mobile/web-build/
+mobile/*.jks
+mobile/*.p8
+mobile/*.p12
+mobile/*.key
+mobile/*.mobileprovision
+mobile/*.orig.*
+mobile/.env
+mobile/.env.local
+
+# Backend
+backend/__pycache__/
+backend/*.py[cod]
+backend/.env
+backend/.venv/
