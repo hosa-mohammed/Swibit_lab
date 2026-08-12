@@ -7,9 +7,9 @@ from app.api.deps import get_current_user
 from app.models.task import Task
 from app.models.user import User
 from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse
-from app.services.cache import get_cached_tasks, set_cached_tasks
-from app.services.mongodb import log_audit  # ← جديد
-from app.services.cache import get_cached_tasks, set_cached_tasks, cache 
+from app.services.cache import get_cached_tasks, set_cached_tasks, delete_cached_tasks
+from app.services.mongodb import log_audit
+
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
@@ -37,7 +37,6 @@ def create_task(task: TaskCreate, db: Session = Depends(get_db), current_user: U
     db.commit()
     db.refresh(db_task)
     
-
     log_audit("task_created", current_user.id, {"task_id": db_task.id, "title": task.title})
     
     logger.info("Task created", extra={"task_id": db_task.id})
@@ -70,20 +69,7 @@ def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User 
     db.delete(db_task)
     db.commit()
     
-    log_audit("task_deleted", current_user.id, {"task_id": task_id})
-    return {"message": "Task deleted"}
-
-
-@router.delete("/{task_id}")
-def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    db_task = db.query(Task).filter(Task.id == task_id, Task.owner_id == current_user.id).first()
-    if not db_task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    
-    db.delete(db_task)
-    db.commit()
-
-    cache.delete(f"tasks:{current_user.id}")
+    delete_cached_tasks(current_user.id)
     
     log_audit("task_deleted", current_user.id, {"task_id": task_id})
     return {"message": "Task deleted"}
