@@ -9,7 +9,7 @@ from app.models.user import User
 from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse
 from app.services.cache import get_cached_tasks, set_cached_tasks
 from app.services.mongodb import log_audit  # ← جديد
-
+from app.services.cache import get_cached_tasks, set_cached_tasks, cache 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
@@ -69,6 +69,21 @@ def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User 
     
     db.delete(db_task)
     db.commit()
+    
+    log_audit("task_deleted", current_user.id, {"task_id": task_id})
+    return {"message": "Task deleted"}
+
+
+@router.delete("/{task_id}")
+def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db_task = db.query(Task).filter(Task.id == task_id, Task.owner_id == current_user.id).first()
+    if not db_task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    db.delete(db_task)
+    db.commit()
+
+    cache.delete(f"tasks:{current_user.id}")
     
     log_audit("task_deleted", current_user.id, {"task_id": task_id})
     return {"message": "Task deleted"}
