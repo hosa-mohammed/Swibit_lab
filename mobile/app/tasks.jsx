@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { useEffect, useState, useCallback } from 'react';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { useRouter } from 'expo-router';
-import { fetchTasks } from '../store/slices/taskSlice';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { fetchTasks, deleteTask } from '../store/slices/taskSlice';
 import { logout } from '../store/slices/authSlice';
 import TaskCard from '../components/TaskCard';
 
@@ -17,17 +17,12 @@ export default function TasksScreen() {
   const { token } = useSelector((state) => state.auth);
 
   useEffect(() => {
-   
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 100);
-
+    const timer = setTimeout(() => setIsReady(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (!isReady) return;
-    
     if (!token) {
       router.replace('/login');
       return;
@@ -35,9 +30,41 @@ export default function TasksScreen() {
     dispatch(fetchTasks());
   }, [token, isReady]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (token) {
+        dispatch(fetchTasks());
+      }
+    }, [token])
+  );
+
   const handleLogout = () => {
     dispatch(logout());
     router.replace('/login');
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    const confirmDelete = () => {
+      if (Platform.OS === 'web') {
+        return window.confirm('Are you sure you want to delete this task?');
+      } else {
+        return new Promise((resolve) => {
+          Alert.alert(
+            'Delete Task',
+            'Are you sure you want to delete this task?',
+            [
+              { text: 'Cancel', onPress: () => resolve(false), style: 'cancel' },
+              { text: 'Delete', onPress: () => resolve(true), style: 'destructive' },
+            ]
+          );
+        });
+      }
+    };
+
+    const confirmed = await confirmDelete();
+    if (!confirmed) return;
+
+    dispatch(deleteTask(taskId));
   };
 
   if (!isReady || isLoading) {
@@ -63,15 +90,26 @@ export default function TasksScreen() {
     <View style={{ flex: 1, backgroundColor: '#F3F4F6' }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
         <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#111827' }}>My Tasks</Text>
-        <TouchableOpacity onPress={handleLogout}>
-          <Text style={{ color: '#EF4444', fontWeight: '600' }}>Logout</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => router.push('/create-task')} style={{ marginRight: 16 }}>
+            <Text style={{ color: '#2563EB', fontWeight: '600', fontSize: 24 }}>+</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogout}>
+            <Text style={{ color: '#EF4444', fontWeight: '600' }}>Logout</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
         data={items}
         keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
-        renderItem={({ item }) => <TaskCard task={item} />}
+        renderItem={({ item }) => (
+          <TaskCard 
+            task={item} 
+            onPress={() => router.push(`/tasks/${item.id}`)}
+            onDelete={() => handleDeleteTask(item.id)}
+          />
+        )}
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={() => dispatch(fetchTasks())} />
         }
