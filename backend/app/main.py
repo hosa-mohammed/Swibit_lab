@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from app.core.database import Base, engine
 from app.core.logging import logger
 from app.api.routes import health, auth, tasks, audit
+from app.ai.router import router as ai_router  
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.ai.router import router as assistant_router
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -18,7 +19,7 @@ app = FastAPI(
 async def startup_event():
     logger.info("Application starting up", extra={"version": "1.0.0"})
 
-# CORS أولاً
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -33,8 +34,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ثم Routers
+# Routers
 app.include_router(health.router, tags=["health"])
 app.include_router(auth.router)
 app.include_router(tasks.router)
 app.include_router(audit.router)
+app.include_router(ai_router) 
+app.include_router(assistant_router)

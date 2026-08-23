@@ -1,34 +1,23 @@
+from pathlib import Path
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 
-from app.ai.classifier import classify_message
-from app.ai.extractor import extract_info
-from app.ai.schemas import ClassificationResult, ExtractionResult
+from app.ai.client import call_llm
+from app.ai.schemas import MessageIn, ClassificationOut
 
-router = APIRouter(prefix="/ai", tags=["ai"])
+router = APIRouter(prefix="/assistant", tags=["assistant"])
 
 
-class MessageRequest(BaseModel):
-    message: str
+def load_prompt(filename: str) -> str:
+    prompt_path = Path(__file__).parent / "prompts" / filename
+    with open(prompt_path, "r", encoding="utf-8") as f:
+        return f.read()
 
 
-@router.post("/classify", response_model=ClassificationResult)
-async def classify_endpoint(request: MessageRequest):
+@router.post("/classify", response_model=ClassificationOut)
+async def classify(body: MessageIn):
     try:
-        result = classify_message(request.message)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
-    except RuntimeError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post("/extract", response_model=ExtractionResult)
-async def extract_endpoint(request: MessageRequest):
-    try:
-        result = extract_info(request.message)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
-    except RuntimeError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        prompt = load_prompt("classifier.md")
+        raw = call_llm(prompt, body.text)
+        return ClassificationOut.model_validate_json(raw)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Classification failed: {str(e)}")
