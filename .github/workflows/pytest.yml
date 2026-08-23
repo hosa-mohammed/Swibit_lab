@@ -30,7 +30,7 @@ jobs:
         ports:
           - 6379:6379
       
-      mongo:  # ← جديد
+      mongo:
         image: mongo:7
         ports:
           - 27017:27017
@@ -52,16 +52,9 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/swibit
           REDIS_URL: redis://localhost:6379/0
-          MONGODB_URL: mongodb://localhost:27017/swibit  # ← جديد
+          MONGODB_URL: mongodb://localhost:27017/swibit
+          LLM_API_KEY: "test-key-fake"
+          LLM_BASE_URL: "https://test.com"
         run: |
           cd backend
           pytest -v
-          
-      - name: Run pytest
-        env:
-          LLM_API_KEY: "test-key-fake"
-          LLM_BASE_URL: "https://test.com"
-          DATABASE_URL: "sqlite:///./test.db"
-        run: |
-          cd backend
-          pytest tests/ -v
