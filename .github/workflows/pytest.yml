@@ -56,3 +56,12 @@ jobs:
         run: |
           cd backend
           pytest -v
+          
+      - name: Run pytest
+        env:
+          LLM_API_KEY: "test-key-fake"
+          LLM_BASE_URL: "https://test.com"
+          DATABASE_URL: "sqlite:///./test.db"
+        run: |
+          cd backend
+          pytest tests/ -v
