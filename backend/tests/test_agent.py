@@ -1,22 +1,11 @@
-import os
-from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
+from unittest.mock import patch
 
-with patch.dict(os.environ, {"LLM_API_KEY": "test-key"}):
-    with patch("app.ai.rag.retrieve.client") as mock_client:
-        mock_client.embeddings.create.return_value = MagicMock(
-            data=[MagicMock(embedding=[0.1] * 1536)]
-        )
-        from app.main import app
-
-client = TestClient(app)
-
-def test_policy_question():
+def test_policy_question(client):
     mock_response = {
         "answer": "Employees earn 15 days PTO per year.",
         "citations": ["vacation-policy.md"]
     }
-    
     with patch("app.ai.agent.tools.answer_question") as mock:
         mock.return_value = mock_response
         resp = client.post("/assistant/ask", json={"text": "How many vacation days?"})
@@ -24,18 +13,17 @@ def test_policy_question():
         data = resp.json()
         assert "15 days" in data["answer"]
 
-def test_task_question():
+def test_task_question(client):
     resp = client.post("/assistant/ask", json={"text": "Show my tasks summary"})
     assert resp.status_code == 200
 
-def test_classify_question():
+def test_classify_question(client):
     mock_response = {
         "category": "support",
         "priority": "high",
         "summary": "App crash",
         "suggested_action": "Investigate"
     }
-    
     with patch("app.ai.agent.executor.classify_message") as mock:
         mock.return_value = mock_response
         resp = client.post("/assistant/ask", json={"text": "The app crashes!"})
