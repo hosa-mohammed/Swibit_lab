@@ -1,19 +1,36 @@
 # Swibit Lab
 
-Task manager backend for small teams.
+AI-powered task manager for small teams.
 
-## v0.1 — Backend Skeleton
+##  Overview
 
-### Setup
+Swibit Lab is a full-stack task management application with an AI assistant. It includes a FastAPI backend, React Native mobile app, and intelligent document retrieval (RAG).
+
+##  Project Structure
+
+
+swibit-lab/
+├── backend/          # FastAPI + AI/RAG
+│   ├── app/
+│   │   ├── ai/       # AI agent, classifier, RAG
+│   │   ├── api/      # REST endpoints
+│   │   └── core/     # Config, database
+│   └── requirements.txt
+├── mobile/           # React Native (Expo)
+│   └── app/
+│       ├── tasks.jsx
+│       └── assistant.jsx
+├── docker-compose.yml
+└── eval/             # Evaluation scenarios
+
+
+## 🛠️ Quick Start
+
+### Docker (Recommended)
 
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate 
-pip install -r requirements.txt
+# 1. Set your OpenAI key
+echo "LLM_API_KEY=sk-your-key" > .env
 
-## 📋 Features (v0.1)
-
--  Health check endpoint
--  Auto-generated API docs (`/docs`)
--  Project structure ready for scaling
+# 2. Run everything
+docker-compose up --build
