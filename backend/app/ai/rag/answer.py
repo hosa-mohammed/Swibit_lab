@@ -3,7 +3,7 @@ import os
 from openai import OpenAI
 from app.ai.rag.retrieve import retrieve
 
-client = OpenAI(api_key=os.environ["LLM_API_KEY"])
+client = OpenAI(api_key=os.environ.get("LLM_API_KEY", "test-key"))
 
 
 def make_prompt(query, chunks):
