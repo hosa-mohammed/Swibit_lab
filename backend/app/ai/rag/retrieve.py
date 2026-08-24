@@ -2,7 +2,7 @@ import os
 import math
 from openai import OpenAI
 from app.ai.rag.ingest import load_documents
-client = OpenAI(api_key=os.environ["LLM_API_KEY"])
+client = OpenAI(api_key=os.environ.get("LLM_API_KEY", "test-key"))
 
 class VectorStore:
     def __init__(self):
