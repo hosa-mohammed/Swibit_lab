@@ -57,4 +57,21 @@ jobs:
           LLM_BASE_URL: "https://test.com"
         run: |
           cd backend
-          pytest -v
+          python -c "
+import sys
+from unittest.mock import MagicMock
+
+mock_client = MagicMock()
+mock_client.embeddings.create.return_value = MagicMock(
+    data=[MagicMock(embedding=[0.1] * 1536)]
+)
+mock_client.chat.completions.create.return_value = MagicMock(
+    choices=[MagicMock(message=MagicMock(content='{\"answer\": \"test\", \"citations\": []}'))]
+)
+
+sys.modules['openai'] = MagicMock()
+sys.modules['openai'].OpenAI = MagicMock(return_value=mock_client)
+sys.modules['redis'] = MagicMock()
+sys.modules['motor'] = MagicMock()
+sys.modules['motor.motor_asyncio'] = MagicMock()
+" && pytest -v

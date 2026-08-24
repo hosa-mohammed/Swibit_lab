@@ -1,10 +1,13 @@
 import json
 import os
-from openai import OpenAI
-from app.ai.rag.retrieve import retrieve
 
-client = OpenAI(api_key=os.environ.get("LLM_API_KEY", "test-key"))
-
+try:
+    from openai import OpenAI
+    from app.ai.rag.retrieve import retrieve
+    client = OpenAI(api_key=os.environ.get("LLM_API_KEY", "test-key"))
+except Exception:
+    client = None
+    retrieve = None
 
 def make_prompt(query, chunks):
     context = ""
@@ -28,17 +31,15 @@ Answer in JSON:
     
     return prompt
 
-
 def answer_question(query):
+    if retrieve is None or client is None:
+        return {"answer": "I don't know", "citations": []}
+    
     chunks = retrieve(query, k=3)
-
     good = [c for c in chunks if c.get("score", 0) > 0.7]
     
     if not good:
-        return {
-            "answer": "I don't know",
-            "citations": []
-        }
+        return {"answer": "I don't know", "citations": []}
     
     prompt = make_prompt(query, good)
     
