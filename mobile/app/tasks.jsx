@@ -10,7 +10,7 @@ export default function TasksScreen() {
   const dispatch = useDispatch();
   const router = useRouter();
   const [isReady, setIsReady] = useState(false);
-  
+
   const tasksState = useSelector((state) => state.tasks) || { items: [], isLoading: false, error: null };
   const { items, isLoading, error } = tasksState;
   
@@ -91,6 +91,18 @@ export default function TasksScreen() {
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
         <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#111827' }}>My Tasks</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity 
+            onPress={() => router.push('/assistant')} 
+            style={{ 
+              backgroundColor: '#2563EB', 
+              paddingHorizontal: 12, 
+              paddingVertical: 6, 
+              borderRadius: 9999, 
+              marginRight: 12 
+            }}
+          >
+            <Text style={{ color: 'white', fontWeight: '600', fontSize: 12 }}>AI Assistant</Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push('/create-task')} style={{ marginRight: 16 }}>
             <Text style={{ color: '#2563EB', fontWeight: '600', fontSize: 24 }}>+</Text>
           </TouchableOpacity>

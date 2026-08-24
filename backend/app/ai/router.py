@@ -1,16 +1,17 @@
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
-
 from app.ai.client import call_llm
 from app.ai.schemas import MessageIn, ClassificationOut
 from app.ai.rag.answer import answer_question
+from app.ai.agent.router import route_query
+from app.ai.agent.executor import execute_tool
 
 router = APIRouter(prefix="/assistant", tags=["assistant"])
 
 
-def load_prompt(filename):
-    path = Path(__file__).parent / "prompts" / filename
-    with open(path, "r", encoding="utf-8") as f:
+def load_prompt(filename: str) -> str:
+    prompt_path = Path(__file__).parent / "prompts" / filename
+    with open(prompt_path, "r", encoding="utf-8") as f:
         return f.read()
 
 
@@ -27,7 +28,9 @@ async def classify(body: MessageIn):
 @router.post("/ask")
 async def ask(body: MessageIn):
     try:
-        result = answer_question(body.text)
+        # Route to correct tool
+        tool_name = route_query(body.text)
+        result = execute_tool(tool_name, body.text)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Answer failed: {str(e)}")

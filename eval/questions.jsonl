@@ -1,0 +1,15 @@
+{"question": "How many vacation days do I get?", "should_know": true, "expect_citation": true}
+{"question": "What is the meal expense limit?", "should_know": true, "expect_citation": true}
+{"question": "Who is eligible for remote work?", "should_know": true, "expect_citation": true}
+{"question": "What is the CEO's dog name?", "should_know": false}
+{"question": "What is the company stock price?", "should_know": false}
+{"question": "How do I request vacation?", "should_know": true, "expect_citation": true}
+{"question": "What is the lodging limit?", "should_know": true, "expect_citation": true}
+{"question": "Can I carry over vacation days?", "should_know": true, "expect_citation": true}
+{"question": "What is the company revenue?", "should_know": false}
+{"question": "Do I need manager approval for remote work?", "should_know": true, "expect_citation": true}
+{"question": "What is the client entertainment limit?", "should_know": true, "expect_citation": true}
+{"question": "When is the blackout period for vacation?", "should_know": true, "expect_citation": true}
+{"question": "What is my salary?", "should_know": false}
+{"question": "What equipment does the company provide?", "should_know": true, "expect_citation": true}
+{"question": "How much PTO after 3 years?", "should_know": true, "expect_citation": true}
