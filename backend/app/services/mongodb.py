@@ -1,11 +1,11 @@
 from pymongo import MongoClient
 from datetime import datetime
 from app.core.config import settings
-
+import os
 client = MongoClient(settings.MONGODB_URL)
 db = client.swibit
 audit_collection = db.audit_logs
-
+MONGODB_URL = os.environ.get("MONGODB_URL", "mongodb://mongo:27017/swibit")
 
 def log_audit(action: str, user_id: int, details: dict = None):
     audit_collection.insert_one({
