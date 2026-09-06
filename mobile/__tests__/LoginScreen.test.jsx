@@ -2,29 +2,10 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import LoginScreen from '../app/login';
-import authReducer from '../store/slices/authSlice';
+import { LoginScreen } from '@/features/auth/components/LoginScreen';
+import authReducer from '@/core/store/authSlice';
 
-// Mock expo-router
-jest.mock('expo-router', () => ({
-  useRouter: () => ({
-    replace: jest.fn(),
-  }),
-  useRootNavigationState: () => ({
-    key: 'test-key',
-  }),
-}));
-
-// Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () => ({
-  setItem: jest.fn(),
-  getItem: jest.fn(),
-  removeItem: jest.fn(),
-}));
-
-const createTestStore = () => configureStore({
-  reducer: { auth: authReducer },
-});
+const createTestStore = () => configureStore({ reducer: { auth: authReducer } });
 
 describe('LoginScreen', () => {
   it('renders login form correctly', () => {
@@ -42,15 +23,14 @@ describe('LoginScreen', () => {
 
   it('shows error when email is empty', async () => {
     const store = createTestStore();
-    const { getByText, findByText } = render(
+    const { getByText } = render(
       <Provider store={store}>
         <LoginScreen />
       </Provider>
     );
 
     fireEvent.press(getByText('Sign In'));
-    
-    // Should show validation error or attempt login
+
     await waitFor(() => {
       expect(getByText('Sign In')).toBeTruthy();
     });

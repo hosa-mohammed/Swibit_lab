@@ -2,9 +2,8 @@ from fastapi import FastAPI
 from app.core.database import Base, engine
 from app.core.logging import logger
 from app.api.routes import health, auth, tasks, audit
-from app.ai.router import router as ai_router  
 from fastapi.middleware.cors import CORSMiddleware
-from app.ai.router import router as assistant_router
+from app.ai.rag import router
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -39,5 +38,4 @@ app.include_router(health.router, tags=["health"])
 app.include_router(auth.router)
 app.include_router(tasks.router)
 app.include_router(audit.router)
-app.include_router(ai_router) 
-app.include_router(assistant_router)
+app.include_router(router.router)

@@ -1,9 +1,10 @@
+const React = require('react');
 
-export const useRouter = () => ({
-  replace: jest.fn(),
-  push: jest.fn(),
-  back: jest.fn(),
-});
-
-export const useLocalSearchParams = () => ({});
-export const useFocusEffect = () => {};
+module.exports = {
+  useRouter: () => ({ replace: jest.fn(), push: jest.fn(), back: jest.fn() }),
+  useRootNavigationState: () => ({ key: 'test-key' }),
+  useLocalSearchParams: () => ({ id: '1' }),
+  Redirect: ({ href }) =>
+    React.createElement('View', { testID: 'redirect', accessibilityLabel: `redirect:${href}` }),
+  Stack: { Screen: () => null },
+};
