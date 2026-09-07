@@ -9,18 +9,16 @@ from unittest.mock import MagicMock
 import sys
 
 mock_client = MagicMock()
-mock_client.embeddings.create.return_value = MagicMock(
-    data=[MagicMock(embedding=[0.1] * 1536)]
-)
+mock_redis = MagicMock()
+mock_redis.get.return_value = None
 mock_client.chat.completions.create.return_value = MagicMock(
     choices=[MagicMock(message=MagicMock(content='{"answer": "test", "citations": []}'))]
 )
 
-sys.modules['openai'] = MagicMock()
-sys.modules['openai'].OpenAI = MagicMock(return_value=mock_client)
 
 # Mock Redis و MongoDB
 sys.modules['redis'] = MagicMock()
+sys.modules['redis'].from_url = MagicMock(return_value=mock_redis)
 sys.modules['motor'] = MagicMock()
 sys.modules['motor.motor_asyncio'] = MagicMock()
 
@@ -50,3 +48,8 @@ def client(db):
     app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
     app.dependency_overrides.clear()
+
+@pytest.fixture(autouse=True)
+def disable_mongodb(monkeypatch):
+
+    monkeypatch.setattr("app.api.routes.tasks.log_audit", lambda *a, **k: None)
